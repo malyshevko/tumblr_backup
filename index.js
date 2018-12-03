@@ -15,11 +15,11 @@ var client = tumblr.createClient({
 });
 
 const userLikes = util.promisify(client.userLikes);
-
+const blogLikes = util.promisify(client.blogLikes);
 
 async function main(){
 	var likes = [];
-	var res = await userLikes({limit: '20'});
+	var res = await blogLikes('zovlesa',{limit: '20'});
 	var all = 20;
 	var count = res.liked_count;
 	var before = res['_links'].next.href.match(/\d{6,}/);
@@ -34,9 +34,10 @@ async function main(){
 		for(var i = 0; i<res.length; i++){
 			if(res[i].video_url){
 				likes.push(res[i].video_url);
-			}else if(url = res[i].trail[0].content_raw.match(/(http.*\.mp4)","media"/)){
+			}
+			else if(res[i].trail[0] && (url = res[i].trail[0].content_raw.match(/(http.*\.mp4)","media"/))){
 				likes.push(url[1]);
-			}else if(url = res[i].trail[0].content_raw.match(/http[^<>"]*\.(jpg|png)/g)){
+			}else if(res[i].trail[0] && (url = res[i].trail[0].content_raw.match(/http[^<>"]*\.(jpg|png)/g))){
 				for(var k=0; k<url.length; k++){
 					likes.push(url[k]);
 				}
@@ -48,7 +49,7 @@ async function main(){
 				console.log(res[i])
 			}
 		}
-		var res = await userLikes({limit: '20', before: before});
+		var res = await blogLikes('zovlesa',{limit: '20', before: before});
 		if(res.liked_posts.length > 0){
 			before = res['_links'].next.href.match(/\d{6,}/)[0];
 			all += 20;
@@ -75,7 +76,8 @@ async function main(){
 		} catch(e){
 			console.log(likes[i])
 		}
-		var downFile = fs.createWriteStream('backup/' + likes[i].match(/\/(\w+.\w{2,4})$/)[1]);
+
+		var downFile = fs.createWriteStream('backup/' + likes[i].match(/\/([\w-,._=+]+.\w{2,4})$/)[1]);
 		downFile.write(res.body);
 		downFile.end();
 	}
