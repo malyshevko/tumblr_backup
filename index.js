@@ -19,8 +19,8 @@ const blogLikes = util.promisify(client.blogLikes);
 
 async function main(){
 	var likes = [];
-	var res = await blogLikes('zovlesa',{limit: '20'});
-	var all = 20;
+	var res = await blogLikes('zovlesa',{limit: '50'});
+	var all = 50;
 	var count = res.liked_count;
 	var before = res['_links'].next.href.match(/\d{6,}/);
 	if(before){
@@ -49,10 +49,10 @@ async function main(){
 				console.log(res[i])
 			}
 		}
-		var res = await blogLikes('zovlesa',{limit: '20', before: before});
+		var res = await blogLikes('zovlesa',{limit: '50', before: before});
 		if(res.liked_posts.length > 0){
 			before = res['_links'].next.href.match(/\d{6,}/)[0];
-			all += 20;
+			all += 50;
 			console.log(all + ' из ' + count);
 		}else{
 			before = false;
